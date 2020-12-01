@@ -1,9 +1,11 @@
 import React from 'react';
 
+import TopMenu from './components/TopMenu';
+
 function App() {
 	return (
 		<div>
-			<p>...</p>
+			<TopMenu />
 		</div>
 	);
 }
