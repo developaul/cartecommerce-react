@@ -8,7 +8,7 @@ import Product from '../Product';
 
 import './Products.scss';
 
-const Products = ({ results }) => {
+const Products = ({ results, addProductCard }) => {
 
     const {  result:products, loading } = results;
 
@@ -25,6 +25,7 @@ const Products = ({ results }) => {
                             <Product 
                                 key={ product.id }
                                 product={ product }
+                                addProductCard={ addProductCard }
                             />
                         ))
                     )
@@ -35,7 +36,8 @@ const Products = ({ results }) => {
 };
 
 Products.propTypes = {
-    results: PropTypes.object.isRequired
+    results: PropTypes.object.isRequired,
+    addProductCard: PropTypes.func.isRequired
 };
 
 export default Products;
