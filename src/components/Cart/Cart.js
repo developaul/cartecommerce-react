@@ -54,7 +54,7 @@ const Cart = ({ productsCart, getProductsCart, results }) => {
             result.forEach( product => {
                 productData.forEach( item => {
 
-                    if( product.id = item.id ) {
+                    if( product.id === item.id ) {
                         const totalValue = product.price * item.quantity;
                         totalPrice = totalPrice + totalValue;
                     }
@@ -64,6 +64,7 @@ const Cart = ({ productsCart, getProductsCart, results }) => {
         }
 
         setCartTotalPrice( totalPrice );
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [productsCart, results] );
 
     const openCart = () => { 
