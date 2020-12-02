@@ -5,7 +5,7 @@ import { Col, Card, Button } from 'react-bootstrap';
 
 import './Product.scss';
 
-const Product = ({ product, addProductCard }) => {
+const Product = ({ product, addProductCart }) => {
 
     const { extraInfo, image, name, price } = product;
 
@@ -28,7 +28,7 @@ const Product = ({ product, addProductCard }) => {
                     <Card.Text>{ price.toFixed( 2 ) }$ / Unidad</Card.Text>
 
                     <Button
-                        onClick={ () => addProductCard( product ) }
+                        onClick={ () => addProductCart( product ) }
                     >Añadir al carrito</Button>
                 </Card.Body>
             </Card>
@@ -38,7 +38,7 @@ const Product = ({ product, addProductCard }) => {
 
 Product.propTypes = {
     product: PropTypes.object.isRequired,
-    addProductCard: PropTypes.func.isRequired
+    addProductCart: PropTypes.func.isRequired
 };
 
 export default Product;

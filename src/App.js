@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { ToastContainer, toast } from 'react-toastify';
 
@@ -14,7 +14,18 @@ function App() {
 
 	const [ productsCart, setProductsCart ] = useState( [] );
 
-	const addProductCard = ({ id, name }) => {
+	useEffect( () => {
+
+		getProductsCart();
+
+	}, [] );
+
+	const getProductsCart = () =>{ 
+		const idsProducts = JSON.parse( localStorage.getItem( STORAGE_PRODUCTS_CART ) ) || [];
+		setProductsCart( idsProducts );
+	};
+	
+	const addProductCart = ({ id, name }) => {
 
 		const idsProducts = productsCart;
 		idsProducts.push( id );
@@ -23,16 +34,21 @@ function App() {
 		
 		localStorage.setItem( STORAGE_PRODUCTS_CART, JSON.stringify( productsCart ) );
 
+		getProductsCart();
+
 		toast.success( `${ name } añadido al carrito correctamente` );
-	}
+	};
 
 	return (
 		<>
-			<TopMenu />
+			<TopMenu 
+				productsCart={ productsCart }
+				getProductsCart={ getProductsCart }
+			/>
 
 			<Products 
 				results={ results }
-				addProductCard={ addProductCard }
+				addProductCart={ addProductCart }
 			/>
 
 			<ToastContainer
@@ -48,6 +64,6 @@ function App() {
 			/>
 		</>
 	);
-}
+};
 
 export default App;
