@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
 
 import { STORAGE_PRODUCTS_CART } from '../../utils/constans';
-import { removeArrayDuplicates, countDuplicateItemArray } from '../../utils/arrayFunc';
+import { removeArrayDuplicates, countDuplicateItemArray, removeItemArray } from '../../utils/arrayFunc';
 
 import { ReactComponent as CartEmpty } from '../../assets/svg/cart-empty.svg';
 import { ReactComponent as CartFull } from '../../assets/svg/cart-full.svg';
@@ -15,10 +15,14 @@ import './Cart.scss';
 
 const Cart = ({ productsCart, getProductsCart, results }) => {
 
+    const { loading, result } = results;
+
     const [ cartOpen, setCartOpen ] = useState( false );
     const widthCartContent = cartOpen ? 370 : 0;
 
     const [ singleProductsCart, setSingleProductsCart ] = useState( [] );
+
+    const [ cartTotalPrice, setCartTotalPrice ] = useState( 0 );
 
     useEffect( () => {
 
@@ -26,6 +30,41 @@ const Cart = ({ productsCart, getProductsCart, results }) => {
         setSingleProductsCart( allProductsId );
 
     }, [ productsCart ] );
+
+    useEffect( () => {
+
+        const productData = [];
+
+        let totalPrice = 0;
+
+        const allProductsId = removeArrayDuplicates( productsCart );
+
+        allProductsId.forEach( productId => {
+
+            const quantity      = countDuplicateItemArray( productId, productsCart );
+            const productValue  = {
+                id: productId,
+                quantity
+            };
+
+            productData.push( productValue );
+        });
+
+        if( !loading && result ) {
+            result.forEach( product => {
+                productData.forEach( item => {
+
+                    if( product.id = item.id ) {
+                        const totalValue = product.price * item.quantity;
+                        totalPrice = totalPrice + totalValue;
+                    }
+
+                });
+            });
+        }
+
+        setCartTotalPrice( totalPrice );
+    }, [productsCart, results] );
 
     const openCart = () => { 
         setCartOpen( true ); 
@@ -35,10 +74,24 @@ const Cart = ({ productsCart, getProductsCart, results }) => {
     const closeCart = () => {
         setCartOpen( false );
         document.body.style.overflowY = 'scroll';
-    }
+    };
 
     const emptyCart = () => {
         localStorage.removeItem( STORAGE_PRODUCTS_CART );
+        getProductsCart();
+    };
+
+    const increaseQuantity = id => {
+        const arrayItemsCart = productsCart;
+        arrayItemsCart.push( id );
+        localStorage.setItem( STORAGE_PRODUCTS_CART, JSON.stringify( arrayItemsCart ) );
+        getProductsCart();
+    };
+
+    const decreaseQuantity = id => {
+        const arrayItemsCart    = productsCart;
+        const result            = removeItemArray( arrayItemsCart, id );
+        localStorage.setItem( STORAGE_PRODUCTS_CART, JSON.stringify( result ) );
         getProductsCart();
     }
 
@@ -76,10 +129,14 @@ const Cart = ({ productsCart, getProductsCart, results }) => {
                                 results={ results }
                                 idsProductsCart={ productsCart }
                                 idProductCart={ idProductsCart }
+                                increaseQuantity={ increaseQuantity }
+                                decreaseQuantity={ decreaseQuantity }
                             />
                         ))
                     }
                 </div>
+
+                <CartContentFooter cartTotalPrice={ cartTotalPrice } />
             </div>
         </>
     );
@@ -99,14 +156,14 @@ const CartContentHeader = ({ closeCart, emptyCart }) => (
             onClick={ emptyCart }
             variant="link" 
         >
-            Varciar
+            Vaciar
             
             <Garbage />
         </Button>
     </div>
 );
 
-const CartContentProducts = ({ results, idsProductsCart, idProductCart }) => {
+const CartContentProducts = ({ results, idsProductsCart, idProductCart, increaseQuantity, decreaseQuantity }) => {
 
     const { loading, result:products } = results;
 
@@ -120,18 +177,22 @@ const CartContentProducts = ({ results, idsProductsCart, idProductCart }) => {
                         key={ index }
                         product={ product }
                         quantity={ quantity }
+                        increaseQuantity={ increaseQuantity }
+                        decreaseQuantity={ decreaseQuantity }
                     />
-                )
+                );
             }
+
+            return null;
         });
     }
 
     return null;
 };
 
-const RenderProduct = ({ product, quantity }) => {
+const RenderProduct = ({ product, quantity, increaseQuantity, decreaseQuantity }) => {
 
-    const { image, name, price } = product;
+    const { id, image, name, price } = product;
 
     return (
         <div className="cart-content__product">
@@ -148,14 +209,30 @@ const RenderProduct = ({ product, quantity }) => {
                     <p>En carro: { quantity } ud.</p>
 
                     <div>
-                        <button>+</button>
-                        <button>-</button>
+                        <button
+                            onClick={ () => increaseQuantity( id ) }
+                        >+</button>
+
+                        <button
+                            onClick={ () => decreaseQuantity( id ) }
+                        >-</button>
                     </div>
                 </div>
             </div>
         </div>
     );
 };
+
+const CartContentFooter = ({ cartTotalPrice }) => (
+    <div className="cart-content__footer">
+        <div>
+            <p>Total aproximado: </p>
+            <p>{ cartTotalPrice.toFixed( 2 ) } $</p>
+        </div>
+
+        <Button>Tramitar Pedido</Button>
+    </div>
+);
 
 Cart.propTypes = {
     results: PropTypes.object.isRequired,
@@ -166,6 +243,25 @@ Cart.propTypes = {
 CartContentHeader.propTypes = {
     closeCart: PropTypes.func.isRequired,
     emptyCart: PropTypes.func.isRequired
+};
+
+CartContentProducts.propTypes = {
+    results: PropTypes.object.isRequired,
+    idsProductsCart: PropTypes.array.isRequired,
+    idProductCart: PropTypes.number.isRequired,
+    increaseQuantity: PropTypes.func.isRequired,
+    decreaseQuantity: PropTypes.func.isRequired
+};
+
+RenderProduct.propTypes = {
+    product: PropTypes.object.isRequired,
+    quantity: PropTypes.number.isRequired,
+    increaseQuantity: PropTypes.func.isRequired,
+    decreaseQuantity: PropTypes.func.isRequired
+};
+
+CartContentFooter.propTypes = {
+    cartTotalPrice: PropTypes.number.isRequired
 };
 
 export default Cart;
