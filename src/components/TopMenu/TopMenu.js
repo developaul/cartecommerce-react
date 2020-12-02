@@ -8,7 +8,7 @@ import Cart from '../Cart';
 import { ReactComponent as Logo } from '../../assets/svg/logo.svg';
 import './TopMenu.scss';
 
-const TopMenu = ({ productsCart, getProductsCart }) => (
+const TopMenu = ({ productsCart, getProductsCart, results }) => (
     <Navbar
         className="top-menu"
         bg="dark"
@@ -17,7 +17,8 @@ const TopMenu = ({ productsCart, getProductsCart }) => (
         <Container>
             <BrandNav />
 
-            <Cart 
+            <Cart
+                results={ results }
                 productsCart={ productsCart }
                 getProductsCart={ getProductsCart }
             />
@@ -33,6 +34,7 @@ const BrandNav = () => (
 );
 
 TopMenu.propTypes = {
+    results: PropTypes.object.isRequired,
     productsCart: PropTypes.array.isRequired,
     getProductsCart: PropTypes.func.isRequired
 }

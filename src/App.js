@@ -42,6 +42,7 @@ function App() {
 	return (
 		<>
 			<TopMenu 
+				results={ results }
 				productsCart={ productsCart }
 				getProductsCart={ getProductsCart }
 			/>
